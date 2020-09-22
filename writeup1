@@ -411,4 +411,42 @@ Phase suivante...
 						** _phase_6 *
 
 
+Nous lancons gdb.. blabla
+
+
+	0x08048db3 <+27>:	call   0x8048fd8 <read_six_numbers>
+
+Nous remarquons que la fonction read_six_numbers est attendu comme precedemment, l'input devra etre au format "%d "%d %d %d %d %d"
+Nous savons aussi grace aux hints du README que le premier des 6 entiers  est : '4'
+
+Continuons..
+
+   0x08048dc6 <+46>:	dec    %eax
+   0x08048dc7 <+47>:	cmp    $0x5,%eax
+   0x08048dca <+50>:	jbe    0x8048dd1 <phase_6+57>
+   0x08048dcc <+52>:	call   0x80494fc <explode_bomb>
+
+Nous observons une decrementation de eax avant que celui-ci ne soit compare a 5.
+Dans le cas ou notre chiffre serait superieur a 5 la bombe exploserais, prenant en compte la decrementation precedente,
+notre chiffre ne peut donc etre superieur a 6.
+La consigne de jbe ici (jump below or equal) concerne les unsigned, donc 0 n'est pas possible non plus car nous decrementons
+avant de cmp et nous aurions donc -1.
+
+Ensuite, nous decouvrons que les 6 chiffres doivent etre differents :
+
+	0x08048dec <+84>:	cmp    (%esi,%ebx,4),%eax
+	0x08048def <+87>:	jne    0x8048df6 <phase_6+94>
+	0x08048df1 <+89>:	call   0x80494fc <explode_bomb>
+
+La comparaison entre notre chiffre et tout ceux d'apres est effectuee, puis une boucle permet de revenir sur cette instruction
+en procedent de la meme maniere, comparer le 2eme chiffres avec ceux restants.
+
+Resumons:
+	- Une suite de 6 chiffres compris entre 1 et 6.
+	- Les 6 doivent etre differents.
+	- Notre premier chiffre est 4.
+
+A partir de la, nous allons creer un script php permettant de gener puis tester les 120 combinaisons restantes.
+
+
 
