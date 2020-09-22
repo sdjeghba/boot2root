@@ -448,5 +448,29 @@ Resumons:
 
 A partir de la, nous allons creer un script php permettant de gener puis tester les 120 combinaisons restantes.
 
+--------------------------------------------------------------------------------
+	laurie@BornToSecHackMe:~$ php script.php bomb aaaaa
+	PHP Warning:  rmdir(/home/laurie/files): Directory not empty in /home/laurie/script.php on line 33
+	Welcome this is my little bomb !!!! You have 6 stages with
+	only one life good luck !! Have a nice day!
+	Phase 1 defused. How about the next one?
+	That's number 2.  Keep going!
+	Halfway there!
+	So you got that one.  Try this one.
+	Good work!  On to the next...
+	Congratulations! You've defused the bomb!
+
+	Le code est dans le fichier : file_44
+--------------------------------------------------------------------------------
+	laurie@BornToSecHackMe:~/files$ cat file_44
+	Public speaking is very easy.
+	1 2 6 24 120 720
+	1 b 214
+	9
+	opekmq
+	4 2 6 3 1 5
+--------------------------------------------------------------------------------
+
+Nous avons notre password 4 2 6 3 1 5
 
 

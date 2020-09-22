@@ -19,8 +19,8 @@ function combinaison($liste_items, $numbers) {
 	return $new_list;
 }
 
-$numbers_list = array('1', '2', '3');
-$numbers_elements = 3;
+$numbers_list = array('1', '2', '3', '4', '6');
+$numbers_elements = 5;
 
 $tab = $numbers_list;
 $i = 1;
@@ -30,12 +30,12 @@ while ($i++ < $numbers_elements) {
 }
 
 $inc = 0;
-file_exists("/home/laurie/files") ? rmdir("/home/laurie/files") : 0;
+file_exists("/home/laurie/files") ? system("rm -rf /home/laurie/files/") : 0;
 file_exists("/home/laurie/files") ? 0 : mkdir("/home/laurie/files", 0755);
 $text = "Public speaking is very easy.\n 1 2 6 24 120 720\n1 b 214\n9\nopekmq\n4 ";
 
 foreach ($tab as $str) {
-	if (same_char($str, 3) == TRUE) {
+	if (same_char($str, $numbers_elements) == TRUE) {
 		$file = fopen("files/file_$inc", w);
 		fwrite($file, $text.$str."\n");
 		$inc++;
@@ -48,7 +48,7 @@ while ($i++ <= 119) {
 	$output = shell_exec("/home/laurie/bomb files/file_$inc");
 	if (!strstr($output, "BOOM")) {
 		echo $output."\n";
-		echo "Le code est dans le fichier : files_$inc \n";
+		echo "Le code est dans le fichier : file_$inc \n";
 	}
 	$inc++;
 }
