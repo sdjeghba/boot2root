@@ -23,4 +23,4 @@ la commande suivante: "live init=/bin/sh", afin que le processus
 se poursuive sur le shell sh.
 
 "live" est un label present dans le fichier de configuration qui 
-sert au boot loader isolinx, qui lui lance le "boot menu".
+reponds au chageur d'amorcage isolinux, qui lui lance le "boot menu".
