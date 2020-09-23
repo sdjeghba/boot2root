@@ -1,0 +1,25 @@
+        ____                _______    _____
+       |  _ \              |__   __|  / ____|
+       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
+       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
+       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
+       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+
+
+WRITEUP_2
+
+A l'issue de recherche on decouvre qu'il est possible de 
+lancer un "rescue shell" au lancement de la VM en utilisant
+la touche ALT.
+
+S'affiche alors un prompt, lorsque l'on essaie l'autocompletion
+avec TAB, la commande "live" nous est suggeree. 
+
+En exécutant cette commande seule "live", le processus de boot 
+reprend correctement.
+
+On decouvre alors qu'il est possible de lancer un shell avec
+la commande suivante: "live init=/bin/sh".
+
+"live" est un label present dans le fichier de configuration qui 
+sert au boot loader isolinx.
