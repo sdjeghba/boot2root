@@ -1,0 +1,41 @@
+        ____                _______    _____
+       |  _ \              |__   __|  / ____|
+       | |_) | ___  _ __ _ __ | | ___| (___   ___  ___
+       |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
+       | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
+       |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+
+BONUS_1
+
+Ici nous allons utiliser "exploit db". C'est un site web qui 
+centralise une grande quantite de failles d'exploitation.
+
+Afin de mener a bien notre recherche nous devons nous premunir
+de certaineis informations  notamment la distrubution de l'OS ainsi
+que la version du kernel. Pour ce faire on utilise les commandes 
+suivantes :
+
+$> lsb_release -a
+$> uname -r
+
+Quelques explications sur l'exploit ?
+
+Ce script utilise l'exploit pokemon de la faille dirtycow effective sur 
+le kernel Unix depuis 9 ans. Il remplace l'utilisateur root par un 
+utilisateur custom.
+
+L'exploitation repose sur le principe de la "race condition"
+
+1. Un backup du fichier /etc/passwd est realisee.
+2. Une structure contenant les infos du nouvel user est
+   initialisee.
+3. Prompt pour le nouveau mot de passe (ou alors passee
+   en second argument).
+4. Ce dernier est ensuite crypte, puis la ligne complete
+   a injecter dans /etc/passwd est generee.
+5. Un fork est lance, le processus parent se charge de 
+   l'ecriture sur l'adresse retournee par mmap, une copie 
+   privee est alors cree, le processus enfant quant a lui 
+   lance un thread de la fonction madvise qui rejete la copie
+   privee et permettra en definitive l'ecriture dans le 
+   fichier originel /etc/passwd.
