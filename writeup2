@@ -24,3 +24,7 @@ se poursuive sur le shell sh.
 
 "live" est un label present dans le fichier de configuration qui 
 reponds au chageur d'amorcage isolinux, qui lui lance le "boot menu".
+
+(Nous voila root, apres exploration de la VM on not notamment 
+l'existence d'un dossier "LOOKATME" qui contient un fichier
+pasword detenteur des acces ftp suivant lmezard : G!@M6f4Eatau{sF")

@@ -7,7 +7,7 @@
 
 BONUS_1
 
-Ici nous allons utiliser "exploit db". C'est un site web qui 
+Ici nous allons utiliser "exploit-db". C'est un site web qui 
 centralise une grande quantite de failles d'exploitation.
 
 Afin de mener a bien notre recherche nous devons nous premunir
@@ -17,6 +17,9 @@ suivantes :
 
 $> lsb_release -a
 $> uname -r
+
+Une fois ces informations rassemblees on choisit l'exploit 
+correspondante sur "exploit-db" -> Dirty COW
 
 Quelques explications sur l'exploit ?
 
