@@ -6,20 +6,8 @@
        | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
        |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
 
-BONUS_3
+BONUS_2
 
-Il s'agit ici d'exploiter la structure de l'iso :
-
-Dans un premier temps il faut monté le fichier ISO depuis la VM Kali, 
-on peut récupérer le fichier casper/filesystem.squashfs qui est le 
-filesystem compressé. On utilise la commande "unsquashfs filesystem.squashfs" 
-qui va décompresser le filesystem dans un dossier squashfs-root.
-
-À partir de là on peut accéder à tous les fichiers présents sur l’ISO monté.
-
-Ainsi on a la possibilite de reprendre le writeup1 a l'etape que nous
-souhaitons au choix:
-
-- depuis "SSH to laurie" en recuperant le fichier "LOOKATME/password" 
-- depuis "SSH to thor" en recuperant le fichier "thor/turtle"
-- depuis "SSH to zaz" en recuperant le fichier "zaz/exploit_me"
+A l'aide du writeup2, apres exploration des fichier on peut remarque 
+le fichier LOOKATME/password qui contient les identifiants du user
+laurie. On peut des lors reprendre le writeup1 a l'etape correspondante.
