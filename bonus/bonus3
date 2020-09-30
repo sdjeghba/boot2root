@@ -5,11 +5,15 @@
        |  _ < / _ \| '__| '_ \| |/ _ \\___ \ / _ \/ __|
        | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
        |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
+       
+**********************************************************************
 
 BONUS_2
 
-A l'aide du writeup2, apres exploration des fichier on peut remarque 
-le fichier LOOKATME/password qui contient les identifiants du user
+À l'aide du WRITEUP2, après exploration des fichier on remarque 
+le fichier "LOOKATME/password" qui contient les identifiants du user
 lmezard : G!@M6f4Eatau{sF". 
 
-On peut des lors reprendre le writeup1 a l'etape correspondante.
+On peut dès lors reprendre le WRITEUP1 a l'étape correspondante.
+
+**********************************************************************
