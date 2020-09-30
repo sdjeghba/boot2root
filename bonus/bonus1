@@ -5,21 +5,22 @@
        | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
        |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
 
+**********************************************************************
+
 BONUS_1
 
-Ici nous allons utiliser "exploit-db". C'est un site web qui 
-centralise une grande quantite de failles d'exploitation.
+Ici nous allons utiliser "exploit-db.com". C'est un site web qui 
+centralise une grande quantité de failles d'exploitation.
 
-Afin de mener a bien notre recherche nous devons nous premunir
-de certaines informations  notamment la distrubution de l'OS ainsi
-que la version du kernel. Pour ce faire on utilise les commandes 
-suivantes :
+Afin de mener a bien notre recherche nous devons nous premunir de 
+certaines informations notamment la distrubution de l'OS ainsi que la 
+version du kernel. Pour ce faire on utilise les commandes suivantes :
 
 $> lsb_release -a
 $> uname -r
 
-Une fois ces informations rassemblees on choisit l'exploit 
-correspondante sur "exploit-db" -> Dirty COW
+Une fois ces informations rassemblees on choisit l'exploit correspondante 
+sur "exploit-db.com" -> Dirty COW.
 
 Quelques explications sur l'exploit ?
 
@@ -27,25 +28,20 @@ Ce script utilise l'exploit pokemon de la faille dirtycow effective sur
 le kernel Unix depuis 9 ans. Il remplace l'utilisateur root par un 
 utilisateur custom.
 
-L'exploitation repose sur le principe de la "race condition"
+L'exploitation repose sur le principe de la "race condition".
 
-1. Un backup du fichier /etc/passwd est realisee.
+1. Un backup du fichier /etc/passwd est réalisée.
 
-2. Une structure contenant les infos du nouvel user est
-   initialisee.
+2. Une structure contenant les informations du nouvel user est initialisée.
 
-3. Prompt pour le nouveau mot de passe (ou alors passee
-   en second argument).
+3. Prompt pour le nouveau mot de passe (ou alors passée en second argument).
 
-4. Ce dernier est ensuite crypte, puis la ligne complete
-   a injecter dans /etc/passwd est generee.
+4. Ce dernier est ensuite crypté, puis la ligne compléte à injecter dans 
+   "/etc/passwd" est generée.
 
-5. Un fork est lance, le processus parent se charge de 
-   l'ecriture sur l'adresse retournee par mmap, une copie 
-   privee est alors cree, le processus enfant quant a lui 
-   lance un thread de la fonction madvise qui rejete la copie
-   privee et permettra en definitive l'ecriture dans le 
-   fichier originel /etc/passwd.
+5. Un fork est lancé, le processus parent se charge de l'ecriture sur 
+   l'adresse retournée par mmap, une copie privée est alors créée, le processus 
+   enfant quant à lui lance un thread de la fonction madvise qui rejéte la copie
+   privée et permettra en définitive l'ecriture dans le fichier originel /etc/passwd.
 
-
-
+**********************************************************************
