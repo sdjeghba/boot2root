@@ -40,8 +40,9 @@ L'exploitation repose sur le principe de la "race condition".
    "/etc/passwd" est generée.
 
 5. Un fork est lancé, le processus parent se charge de l'ecriture sur 
-   l'adresse retournée par mmap, une copie privée est alors créée, le processus 
-   enfant quant à lui lance un thread de la fonction madvise qui rejéte la copie
-   privée et permettra en définitive l'ecriture dans le fichier originel /etc/passwd.
+   l'adresse retournée par mmap, une copie privée est alors créée, le 
+   processus enfant quant à lui lance un thread de la fonction madvise 
+   qui rejéte la copieprivée et permettra en définitive l'ecriture dans 
+   le fichier originel /etc/passwd.
 
 **********************************************************************
