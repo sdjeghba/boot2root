@@ -6,24 +6,29 @@
        |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
 
 
+**********************************************************************
+
 WRITEUP_2
 
-A l'issue de recherche on decouvre qu'il est possible de lancer 
-un "boot menu" au lancement de la VM en utilisant la touche ALT.
+À l'issue de recherche on découvre qu'il est possible de lancer 
+un "boot menu" au démarrage de la VM en utilisant la touche ALT.
 
 S'affiche alors un prompt, lorsque l'on essaie l'autocompletion
-avec TAB, la commande "live" nous est suggeree. 
+avec TAB, la commande "live" nous est suggérée. 
 
 En exécutant cette commande seule "live", le processus de boot 
-reprend correctement.
+reprend son court correctement.
 
-On decouvre alors qu'il est possible de lancer un shell avec la
+On découvre alors qu'il est possible de lancer un shell avec la
 commande suivante: "live init=/bin/sh", afin que le processus se 
 poursuive sur le shell sh.
 
-"live" est un label present dans le fichier de configuration qui 
-reponds au chageur d'amorcage isolinux, qui lui lance le "boot menu".
+"live" est un label présent dans le fichier de configuration qui 
+réponds au chageur d'amorcage "isolinux", qui lui configure et 
+lance le "boot menu".
 
-(Nous voila root, apres exploration de la VM on note notamment 
-l'existence d'un dossier "LOOKATME" qui contient un fichier
-password detenteur des acces ftp suivant lmezard : G!@M6f4Eatau{sF")
+(Nous voilà root, après exploration de la VM on note notamment 
+l'éxistence d'un dossier "LOOKATME" qui contient un fichier
+"password" detenteur des accès ftp suivant lmezard:G!@M6f4Eatau{sF")
+
+**********************************************************************
