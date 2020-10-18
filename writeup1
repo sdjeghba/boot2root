@@ -5,14 +5,16 @@
        | |_) | (_) | |  | | | | | (_) |___) |  __/ (__
        |____/ \___/|_|  |_| |_|_|\___/_____/ \___|\___|
 
-******************************************************************************
+
 
 WRITEUP_1
 
-_______________________________________________________________________________
 
-				SSH TO LAURIE
-_______________________________________________________________________________
+      						 _       _          _                  _      
+ 					 ___ ___| |__   | |_ ___   | | __ _ _   _ _ __(_) ___ 
+					/ __/ __| '_ \  | __/ _ \  | |/ _` | | | | '__| |/ _ \
+					\__ \__ \ | | | | || (_) | | | (_| | |_| | |  | |  __/
+					|___/___/_| |_|  \__\___/  |_|\__,_|\__,_|_|  |_|\___|
 
 
 >$ ifconfig
@@ -120,11 +122,13 @@ Password : 330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4
 Nous pouvons desormais nous connecter en SSH avec le user laurie! Amazing
 
 
-_______________________________________________________________________________
 
-				SSH TO THOR
-_______________________________________________________________________________
-
+        						 _       _          _   _                
+						 ___ ___| |__   | |_ ___   | |_| |__   ___  _ __ 
+						/ __/ __| '_ \  | __/ _ \  | __| '_ \ / _ \| '__|
+						\__ \__ \ | | | | || (_) | | |_| | | | (_) | |   
+						|___/___/_| |_|  \__\___/   \__|_| |_|\___/|_|   
+                                                 
 
 
 BOMB!
@@ -137,7 +141,14 @@ Nous lancons gdb sur bomb, un break sur le main puis un disas et on se rend comp
 bien 6 phases de désamorçage comme indiqué au lancement du binaire (phase_1/6).
 Nous allons pouvoir break par la suite a chacune d'entre elles pour les résoudres.
 
-						** _phase_1: **
+
+	   __                   ___
+    ____  / /_  ____ _________ <  /
+   / __ \/ __ \/ __ `/ ___/ _ \/ / 
+  / /_/ / / / / /_/ (__  )  __/ /  
+ / .___/_/ /_/\__,_/____/\___/_/   
+/_/                              
+
 
 Nous lancons gdb, puis break à la phase_1.
 
@@ -164,7 +175,13 @@ Phase 1 defused. How about the next one?
 Phase 1 désamorcée, passons à la suivante.
 
 
-						** _phase_2: **
+           __                   ___ 
+    ____  / /_  ____ _________ |__ \
+   / __ \/ __ \/ __ `/ ___/ _ \__/ /
+  / /_/ / / / / /_/ (__  )  __/ __/ 
+ / .___/_/ /_/\__,_/____/\___/____/ 
+/_/                                
+
 
 Nous lancons gdb, puis break a la phase_2.
 
@@ -196,7 +213,12 @@ Nous remarquons d'ailleurs que dans le README le placement des lettres est un in
 Cela nous sera utile pour la suite.
 
 
-						** _phase_3: **
+           __                   _____
+    ____  / /_  ____ _________ |__  /
+   / __ \/ __ \/ __ `/ ___/ _ \ /_ < 
+  / /_/ / / / / /_/ (__  )  __/__/ / 
+ / .___/_/ /_/\__,_/____/\___/____/  
+/_/                                
 
 
 Nous lancons gdb.. blabla
@@ -261,9 +283,12 @@ Il ne nous reste plus qu'a répéter les operations avec les 8 chiffres de 0 a 7
 
 Celui qui nous intéresse ici est '1 b 214' au vue de l'indice dans le README.
 
-
-
-						** _phase_4 **
+           __                    __ __
+    ____  / /_  ____ _________  / // /
+   / __ \/ __ \/ __ `/ ___/ _ \/ // /_
+  / /_/ / / / / /_/ (__  )  __/__  __/
+ / .___/_/ /_/\__,_/____/\___/  /_/   
+/_/                                   
 
 
 Nous lancons gdb.. blabla
@@ -341,8 +366,13 @@ So you got that one.  Try this one.
 Done!
 
 
+           __                    ______
+    ____  / /_  ____ _________  / ____/
+   / __ \/ __ \/ __ `/ ___/ _ \/___ \  
+  / /_/ / / / / /_/ (__  )  __/___/ /  
+ / .___/_/ /_/\__,_/____/\___/_____/   
+/_/                                  
 
-						** _phase_5 **
 
 
 Nous lancons gdb.. blabla
@@ -407,8 +437,12 @@ Good work!  On to the next...
 Phase suivante...
 
 
-
-						** _phase_6 *
+           __                    _____
+    ____  / /_  ____ _________  / ___/
+   / __ \/ __ \/ __ `/ ___/ _ \/ __ \ 
+  / /_/ / / / / /_/ (__  )  __/ /_/ / 
+ / .___/_/ /_/\__,_/____/\___/\____/  
+/_/                                  
 
 
 Nous lancons gdb.. blabla
@@ -486,13 +520,14 @@ Publicspeakingisveryeasy.126241207201b2149opekmq426135
 
 Nous pouvons desormais nous connecter en ssh avec thor!
 
+	
+								 _       _                       
+ 							 ___ ___| |__   | |_ ___    ______ _ ____
+							/ __/ __| '_ \  | __/ _ \  |_  / _` |_  /
+							\__ \__ \ | | | | || (_) |  / / (_| |/ / 
+							|___/___/_| |_|  \__\___/  /___\__,_/___|
 
 
-
-_______________________________________________________________________________
-
-								SSH TO ZAZ
-_______________________________________________________________________________
 
 
 Nous avons un fichier README et un fichier turtle dans le home du user.
@@ -509,10 +544,12 @@ MD5 : Message Digest 5, en rapport avec la piste donnée à la fin du fichier tu
 Ce qui nous donne : 646da671ca01bb5d84dbb5fb2238dc8e
 
 
-______________________________________________________________________________
-
-								SSH TO ROOT
-_______________________________________________________________________________
+						         	 _       _                          _   
+							 ___ ___| |__   | |_ ___    _ __ ___   ___ | |_ 
+							/ __/ __| '_ \  | __/ _ \  | '__/ _ \ / _ \| __|
+							\__ \__ \ | | | | || (_) | | | | (_) | (_) | |_ 
+							|___/___/_| |_|  \__\___/  |_|  \___/ \___/ \__|
+                                                
 
 Nous lancons gdb.. blabla
 
